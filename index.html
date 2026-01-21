@@ -4,94 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Hero Academy: Healthy Plate</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- React and ReactDOM -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <!-- Babel for JSX -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');
-        
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #f0fdf4;
-            margin: 0;
-            overflow: hidden;
-            touch-action: none;
-        }
-
-        .animate-bounce-slow {
-            animation: bounce 3s infinite;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(-5%); }
-            50% { transform: translateY(0); }
-        }
-
-        .hero-gradient {
-            background: radial-gradient(circle at top right, #d1fae5 0%, transparent 50%),
-                        radial-gradient(circle at bottom left, #fef3c7 0%, transparent 50%);
-        }
-        
-        /* Custom scrollbar for result list */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #10b981;
-            border-radius: 10px;
-        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f0fdf4; margin: 0; overflow: hidden; touch-action: none; }
+        .hero-gradient { background: radial-gradient(circle at top right, #d1fae5 0%, transparent 50%), radial-gradient(circle at bottom left, #fef3c7 0%, transparent 50%); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useMemo } = React;
+        const { useState, useEffect } = React;
+        const { motion, AnimatePresence } = window.Motion;
 
-        const ITEM_BANK = [
-            { type: 'healthy', icon: '🍎', name: 'Apple' },
-            { type: 'unhealthy', icon: '🍭', name: 'Candy' },
-            { type: 'healthy', icon: '🥦', name: 'Broccoli' },
-            { type: 'healthy', icon: '💧', name: 'Water' },
-            { type: 'unhealthy', icon: '🥤', name: 'Soda' },
-            { type: 'healthy', icon: '🥕', name: 'Carrot' },
-            { type: 'unhealthy', icon: '🍕', name: 'Pizza' },
-            { type: 'healthy', icon: '🍌', name: 'Banana' },
-            { type: 'unhealthy', icon: '🍩', name: 'Donut' },
-            { type: 'healthy', icon: '🍓', name: 'Strawberry' },
-            { type: 'unhealthy', icon: '🍟', name: 'Fries' },
-            { type: 'healthy', icon: '🥚', name: 'Egg' },
-            { type: 'unhealthy', icon: '🍔', name: 'Burger' },
-            { type: 'healthy', icon: '🍉', name: 'Watermelon' },
-            { type: 'unhealthy', icon: '🍦', name: 'Ice Cream' },
-            { type: 'healthy', icon: '🍇', name: 'Grapes' },
-            { type: 'healthy', icon: '🌽', name: 'Corn' },
-            { type: 'healthy', icon: '🍊', name: 'Orange' },
-            { type: 'unhealthy', icon: '🍰', name: 'Cake' },
-            { type: 'unhealthy', icon: '🌭', name: 'Hot Dog' }
-        ];
-
-        const MESSAGE_BANK = [
-            "You are a health superstar!",
-            "Amazing choice making, hero!",
-            "Your body feels stronger already!",
-            "You have the power of healthy habits!",
-            "Wow! You are a master of power-ups!",
-            "Keep shining, healthy hero!",
-            "You are growing so strong and smart!",
-            "Great job choosing energy for your day!",
-            "You are becoming a champion of wellness!",
-            "Every healthy choice makes you a hero!"
-        ];
+        const Icons = {
+            Apple: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 8c1.657 0 3 .895 3 2s-1.343 2-3 2-3-.895-3-2 1.343-2 3-2z"/><path d="M12 12v6"/></svg>,
+            Star: ({ className, fill }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill={fill || "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
+            RefreshCcw: ({ size }) => <svg width={size} height={size} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>,
+            Smartphone: ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>,
+            Trophy: ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>,
+            CheckCircle2: ({ size, className }) => <svg width={size} className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>,
+            XCircle: ({ size, className }) => <svg width={size} className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>,
+            Maximize: ({ size }) => <svg width={size} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>,
+            Minimize: ({ size }) => <svg width={size} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3"/><path d="M21 8h-3a2 2 0 0 1-2-2V3"/><path d="M3 16h3a2 2 0 0 1 2 2v3"/><path d="M16 21v-3a2 2 0 0 1 2-2h3"/></svg>
+        };
 
         function App() {
-            const [gameState, setGameState] = useState('menu');
+            const [gameState, setGameState] = useState('menu'); 
             const [score, setScore] = useState(0);
             const [currentIdx, setCurrentIdx] = useState(0);
             const [userAnswers, setUserAnswers] = useState([]);
@@ -100,16 +46,43 @@
             const [isFullscreen, setIsFullscreen] = useState(false);
             const [finalMessage, setFinalMessage] = useState('');
 
+            const ITEM_BANK = [
+                { type: 'healthy', icon: '🍎', name: 'Apple' },
+                { type: 'unhealthy', icon: '🍭', name: 'Candy' },
+                { type: 'healthy', icon: '🥦', name: 'Broccoli' },
+                { type: 'healthy', icon: '💧', name: 'Water' },
+                { type: 'unhealthy', icon: '🥤', name: 'Soda' },
+                { type: 'healthy', icon: '🥕', name: 'Carrot' },
+                { type: 'unhealthy', icon: '🍕', name: 'Pizza' },
+                { type: 'healthy', icon: '🍌', name: 'Banana' },
+                { type: 'unhealthy', icon: '🍩', name: 'Donut' },
+                { type: 'healthy', icon: '🍓', name: 'Strawberry' },
+                { type: 'unhealthy', icon: '🍟', name: 'Fries' },
+                { type: 'healthy', icon: '🥚', name: 'Egg' },
+                { type: 'unhealthy', icon: '🍔', name: 'Burger' },
+                { type: 'healthy', icon: '🍉', name: 'Watermelon' },
+                { type: 'unhealthy', icon: '🍦', name: 'Ice Cream' },
+                { type: 'healthy', icon: '🍇', name: 'Grapes' },
+                { type: 'healthy', icon: '🌽', name: 'Corn' },
+                { type: 'healthy', icon: '🍊', name: 'Orange' },
+                { type: 'unhealthy', icon: '🍰', name: 'Cake' },
+                { type: 'unhealthy', icon: '🌭', name: 'Hot Dog' }
+            ];
+
+            const MESSAGE_BANK = [
+                "You are a health superstar!", "Amazing choice making, hero!",
+                "Your body feels stronger already!", "You have the power of healthy habits!",
+                "Wow! You are a master of power-ups!", "Keep shining, healthy hero!",
+                "You are growing so strong and smart!", "Great job choosing energy for your day!",
+                "You are becoming a champion of wellness!", "Every healthy choice makes you a hero!"
+            ];
+
             useEffect(() => {
-                const checkOrientation = () => {
-                    setOrientation(window.innerWidth > window.innerHeight ? 'landscape' : 'portrait');
-                };
+                const checkOrientation = () => setOrientation(window.innerWidth > window.innerHeight ? 'landscape' : 'portrait');
                 const handleFSChange = () => setIsFullscreen(!!document.fullscreenElement);
-                
                 window.addEventListener('resize', checkOrientation);
                 document.addEventListener('fullscreenchange', handleFSChange);
                 checkOrientation();
-                
                 return () => {
                     window.removeEventListener('resize', checkOrientation);
                     document.removeEventListener('fullscreenchange', handleFSChange);
@@ -127,7 +100,6 @@
             const startGame = () => {
                 const shuffledItems = [...ITEM_BANK].sort(() => 0.5 - Math.random()).slice(0, 10);
                 const randomMsg = MESSAGE_BANK[Math.floor(Math.random() * MESSAGE_BANK.length)];
-                
                 setSessionItems(shuffledItems);
                 setFinalMessage(randomMsg);
                 setScore(0);
@@ -141,7 +113,6 @@
                 const isCorrect = currentItem.type === choice;
                 if (isCorrect) setScore(s => s + 10);
                 setUserAnswers([...userAnswers, { ...currentItem, wasCorrect: isCorrect }]);
-
                 if (currentIdx < 9) {
                     setCurrentIdx(currentIdx + 1);
                 } else {
@@ -151,143 +122,87 @@
 
             return (
                 <div className="fixed inset-0 bg-emerald-50 hero-gradient overflow-hidden flex flex-col h-[100dvh]">
-                    
                     {orientation === 'portrait' && gameState === 'game' && (
                         <div className="fixed inset-0 z-[100] bg-slate-900 flex flex-col items-center justify-center text-white p-6 text-center">
-                            <div className="text-emerald-400 mb-4 animate-bounce">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
-                            </div>
+                            <Icons.Smartphone className="w-12 h-12 mb-4 animate-bounce text-emerald-400" />
                             <p className="font-bold uppercase tracking-widest text-sm">Rotate Screen for Landscape</p>
                         </div>
                     )}
 
-                    <button 
-                        onClick={toggleFullScreen}
-                        className="fixed top-4 right-4 z-[110] bg-white/90 backdrop-blur p-3 rounded-full shadow-lg border border-emerald-100 text-emerald-600 active:scale-90 transition-all"
-                    >
-                        {isFullscreen ? (
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3"/><path d="M21 8h-3a2 2 0 0 1-2-2V3"/><path d="M3 16h3a2 2 0 0 1 2 2v3"/><path d="M16 21v-3a2 2 0 0 1 2-2h3"/></svg>
-                        ) : (
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
-                        )}
+                    <button onClick={toggleFullScreen} className="fixed top-2 right-2 z-[110] bg-white/90 backdrop-blur p-2 rounded-full shadow-lg border border-emerald-100 text-emerald-600 active:scale-90 transition-transform">
+                        {isFullscreen ? <Icons.Minimize size={18} /> : <Icons.Maximize size={18} />}
                     </button>
 
                     {gameState === 'game' && (
-                        <header className="flex-none p-4 flex justify-between items-center bg-white/80 backdrop-blur-md border-b border-emerald-100 z-10 pr-16">
-                            <div className="flex items-center gap-2 bg-white px-4 py-1 rounded-xl shadow-sm border-2 border-emerald-200">
-                                <span className="text-yellow-500">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                </span>
-                                <span className="text-xl md:text-2xl font-black text-emerald-600">{score}</span>
+                        <header className="flex-none p-2 md:p-3 flex justify-between items-center bg-white/80 backdrop-blur-sm border-b border-emerald-100 z-10 pr-12">
+                            <div className="flex items-center gap-2 bg-white px-3 py-1 rounded-lg border-2 border-emerald-200">
+                                <Icons.Star className="w-4 h-4 text-yellow-500" fill="currentColor" />
+                                <span className="text-base md:text-xl font-black text-emerald-600">{score}</span>
                             </div>
-                            <div className="flex-1 max-w-[200px] md:max-w-md mx-4">
-                                <div className="bg-slate-200 h-4 rounded-full overflow-hidden border border-white shadow-inner">
-                                    <div 
-                                        style={{ width: `${(currentIdx / 10) * 100}%`, transition: 'width 0.3s ease' }} 
-                                        className="bg-emerald-500 h-full" 
-                                    />
+                            <div className="flex-1 max-w-[150px] md:max-w-xs mx-4">
+                                <div className="bg-slate-200 h-2 md:h-3 rounded-full overflow-hidden border border-white">
+                                    <motion.div animate={{ width: `${(currentIdx / 10) * 100}%` }} className="bg-emerald-500 h-full" />
                                 </div>
                             </div>
-                            <div className="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-widest hidden sm:block">
-                                Item {currentIdx + 1} of 10
+                            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest hidden sm:block">
+                                {currentIdx + 1} / 10
                             </div>
                         </header>
                     )}
 
-                    <main className="flex-1 relative overflow-y-auto flex items-center justify-center p-4">
-                        {gameState === 'menu' && (
-                            <div className="w-full max-w-xl bg-white p-8 md:p-12 rounded-[3rem] shadow-2xl border-b-[12px] border-emerald-100 text-center space-y-8 animate-in zoom-in duration-300">
-                                <div className="bg-emerald-50 w-24 h-24 md:w-32 md:h-32 rounded-full flex items-center justify-center mx-auto border-4 border-emerald-100 animate-bounce-slow">
-                                    <span className="text-emerald-600">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 8c1.657 0 3 .895 3 2s-1.343 2-3 2-3-.895-3-2 1.343-2 3-2z"/><path d="M12 12v6"/></svg>
-                                    </span>
-                                </div>
-                                <div className="space-y-2">
-                                    <h1 className="text-4xl md:text-7xl font-black text-emerald-600 leading-none italic uppercase">Hero Plate</h1>
-                                    <p className="text-lg text-slate-400 font-bold uppercase tracking-[0.2em]">Quest for Health</p>
-                                </div>
-                                <button 
-                                    onClick={startGame}
-                                    className="w-full bg-emerald-500 text-white text-2xl md:text-4xl font-black py-6 rounded-full shadow-xl active:scale-95 transition-all uppercase tracking-tighter hover:bg-emerald-600"
-                                >
-                                    Start Training
-                                </button>
-                            </div>
-                        )}
-
-                        {gameState === 'game' && sessionItems[currentIdx] && (
-                            <div className="w-full max-w-2xl bg-white p-8 rounded-[3rem] shadow-2xl border-4 border-emerald-50 flex flex-col items-center gap-8 animate-in slide-in-from-right duration-300">
-                                <h2 className="text-2xl md:text-4xl font-black text-slate-600 text-center uppercase">Is this healthy?</h2>
-                                
-                                <div className="text-8xl md:text-[160px] bg-emerald-50 p-10 rounded-full border-2 border-emerald-100 shadow-inner">
-                                    {sessionItems[currentIdx].icon}
-                                </div>
-
-                                <div className="flex gap-4 w-full">
-                                    <button 
-                                        onClick={() => handleChoice('healthy')} 
-                                        className="flex-1 bg-emerald-500 text-white py-6 rounded-3xl text-2xl md:text-4xl font-black shadow-lg active:scale-95 transition-all uppercase hover:bg-emerald-600"
-                                    >
-                                        Yes
-                                    </button>
-                                    <button 
-                                        onClick={() => handleChoice('unhealthy')} 
-                                        className="flex-1 bg-red-400 text-white py-6 rounded-3xl text-2xl md:text-4xl font-black shadow-lg active:scale-95 transition-all uppercase hover:bg-red-500"
-                                    >
-                                        No
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-
-                        {gameState === 'result' && (
-                            <div className="bg-white p-6 md:p-12 rounded-[3.5rem] shadow-2xl max-w-4xl w-full text-center border-b-[16px] border-emerald-100 overflow-y-auto max-h-[92vh] custom-scrollbar animate-in zoom-in duration-300">
-                                <div className="text-yellow-500 mx-auto mb-4 flex justify-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
-                                </div>
-                                <h2 className="text-4xl md:text-6xl font-black text-emerald-600 mb-6 uppercase tracking-tighter">Mission Success</h2>
-                                
-                                <div className="bg-emerald-50 rounded-[2.5rem] p-8 mb-8 flex flex-col md:flex-row items-center gap-8">
-                                    <div className="text-center bg-white p-6 rounded-3xl shadow-sm border-2 border-emerald-100 min-w-[140px]">
-                                        <div className="text-6xl md:text-8xl font-black text-emerald-600 leading-none">{score}</div>
-                                        <div className="text-xs font-black text-emerald-400 uppercase tracking-widest mt-2">Score</div>
+                    <main className="flex-1 relative flex items-center justify-center p-2 overflow-hidden">
+                        <AnimatePresence mode="wait">
+                            {gameState === 'menu' && (
+                                <motion.div key="menu" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-lg bg-white p-6 md:p-8 rounded-[2rem] shadow-xl border-b-[8px] border-emerald-100 text-center space-y-4 flex flex-col items-center justify-center max-h-[90vh] overflow-hidden">
+                                    <div className="bg-emerald-50 w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center border-4 border-emerald-100 shrink-0"><Icons.Apple /></div>
+                                    <div className="space-y-1">
+                                        <h1 className="text-3xl md:text-5xl font-black text-emerald-600 italic uppercase leading-none">Hero Plate</h1>
+                                        <p className="text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-[0.2em]">Quest for Health</p>
                                     </div>
-                                    <div className="text-left">
-                                        <p className="text-2xl md:text-3xl font-black text-slate-700 leading-tight italic">
-                                            "{finalMessage}"
-                                        </p>
-                                    </div>
-                                </div>
+                                    <button onClick={startGame} className="w-full max-w-xs bg-emerald-500 text-white text-lg md:text-2xl font-black py-3 md:py-4 rounded-full shadow-lg active:scale-95 uppercase tracking-tighter">Start Training</button>
+                                </motion.div>
+                            )}
 
-                                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-10">
-                                    {userAnswers.map((item, i) => (
-                                        <div key={i} className={`p-4 rounded-3xl border-2 flex flex-col items-center gap-2 ${item.wasCorrect ? 'border-emerald-100 bg-emerald-50' : 'border-red-50 bg-red-50'}`}>
-                                            <span className="text-4xl">{item.icon}</span>
-                                            <div className="flex items-center gap-1">
-                                                {item.wasCorrect ? (
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                                                ) : (
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-                                                )}
-                                                <span className="text-[10px] font-black uppercase text-slate-500">{item.name}</span>
-                                            </div>
+                            {gameState === 'game' && sessionItems[currentIdx] && (
+                                <motion.div key={currentIdx} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-xl h-full max-h-[90vh] bg-white p-4 md:p-6 rounded-[2rem] shadow-xl border-4 border-emerald-50 flex flex-col items-center justify-between gap-2 overflow-hidden">
+                                    <h2 className="text-lg md:text-2xl font-black text-slate-600 uppercase shrink-0">Is this healthy?</h2>
+                                    <div className="flex-1 flex items-center justify-center min-h-0 w-full overflow-hidden">
+                                        <motion.div key={sessionItems[currentIdx].name} initial={{ scale: 0.5 }} animate={{ scale: 1 }} className="text-[20vh] md:text-[25vh] leading-none select-none flex items-center justify-center">
+                                            {sessionItems[currentIdx].icon}
+                                        </motion.div>
+                                    </div>
+                                    <div className="flex gap-4 w-full max-w-sm shrink-0 pb-1">
+                                        <button onClick={() => handleChoice('healthy')} className="flex-1 bg-emerald-500 text-white py-3 md:py-4 rounded-2xl text-xl md:text-2xl font-black shadow-lg active:scale-95 uppercase">Yes</button>
+                                        <button onClick={() => handleChoice('unhealthy')} className="flex-1 bg-red-400 text-white py-3 md:py-4 rounded-2xl text-xl md:text-2xl font-black shadow-lg active:scale-95 uppercase">No</button>
+                                    </div>
+                                </motion.div>
+                            )}
+
+                            {gameState === 'result' && (
+                                <motion.div key="result" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white p-4 md:p-6 rounded-[2.5rem] shadow-2xl max-w-3xl w-full h-full max-h-[96vh] text-center border-b-[10px] border-emerald-100 flex flex-col justify-between overflow-hidden">
+                                    <div className="shrink-0 flex flex-col items-center pt-1"><Icons.Trophy className="w-8 h-8 md:w-12 md:h-12 text-yellow-500 mb-1" /><h2 className="text-xl md:text-3xl font-black text-emerald-600 uppercase tracking-tighter leading-none">Mission Success</h2></div>
+                                    <div className="bg-emerald-50 rounded-[1.5rem] p-3 md:p-4 flex items-center gap-4 justify-center min-h-0 flex-1 my-2 overflow-hidden">
+                                        <div className="text-center bg-white p-3 rounded-xl border-2 border-emerald-100 shrink-0">
+                                            <div className="text-3xl md:text-5xl font-black text-emerald-600 leading-none">{score}</div>
+                                            <div className="text-[8px] font-black text-emerald-400 uppercase mt-1">Score</div>
                                         </div>
-                                    ))}
-                                </div>
-
-                                <button 
-                                    onClick={startGame} 
-                                    className="w-full bg-slate-800 text-white py-6 rounded-full text-2xl font-black shadow-xl flex items-center justify-center gap-4 active:scale-95 transition-all uppercase tracking-widest hover:bg-slate-900"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>
-                                    Play Again
-                                </button>
-                            </div>
-                        )}
+                                        <div className="text-left overflow-hidden"><p className="text-base md:text-xl font-black text-slate-700 leading-tight italic line-clamp-2 md:line-clamp-none">"{finalMessage}"</p></div>
+                                    </div>
+                                    <div className="grid grid-cols-5 gap-1.5 mb-3 shrink-0 px-1">
+                                        {userAnswers.map((item, i) => (
+                                            <div key={i} className={`p-1.5 md:p-2 rounded-xl border flex flex-col items-center gap-0.5 ${item.wasCorrect ? 'border-emerald-100 bg-emerald-50' : 'border-red-50 bg-red-50'}`}>
+                                                <span className="text-xl md:text-2xl">{item.icon}</span>
+                                                <div className="flex items-center gap-1">{item.wasCorrect ? <Icons.CheckCircle2 size={10} className="text-emerald-500" /> : <Icons.XCircle size={10} className="text-red-400" />}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <button onClick={startGame} className="shrink-0 w-full max-w-xs mx-auto bg-slate-800 text-white py-3 rounded-full text-base md:text-lg font-black shadow-lg flex items-center justify-center gap-2 active:scale-95 uppercase tracking-wider"><Icons.RefreshCcw size={16} /> Play Again</button>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </main>
-
-                    <div className="fixed -bottom-40 -left-40 w-96 h-96 bg-emerald-100/30 rounded-full blur-[100px] pointer-events-none" />
-                    <div className="fixed -top-40 -right-40 w-96 h-96 bg-emerald-100/30 rounded-full blur-[100px] pointer-events-none" />
+                    <div className="fixed -bottom-40 -left-40 w-96 h-96 bg-emerald-100/20 rounded-full blur-[100px] pointer-events-none" />
+                    <div className="fixed -top-40 -right-40 w-96 h-96 bg-emerald-100/20 rounded-full blur-[100px] pointer-events-none" />
                 </div>
             );
         }
@@ -297,13 +212,5 @@
     </script>
 </body>
 </html>
-
-      <div className="fixed -bottom-20 -left-20 w-80 h-80 bg-emerald-100/30 rounded-full blur-3xl pointer-events-none" />
-      <div className="fixed -top-20 -right-20 w-80 h-80 bg-emerald-100/30 rounded-full blur-3xl pointer-events-none" />
-    </div>
-  );
-};
-
-export default App;
 
 
