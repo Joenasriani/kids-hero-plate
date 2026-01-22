@@ -39,7 +39,6 @@
         const Confetti = () => {
             const colors = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
             
-            // Stable piece data to prevent repeat bursts on re-render
             const pieces = useMemo(() => {
                 return Array.from({ length: 80 }).map((_, i) => {
                     const isLeft = i < 40;
@@ -247,7 +246,7 @@
 
                             {gameState === 'game' && sessionItems[currentIdx] && (
                                 <motion.div key={currentIdx} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-xl h-full max-h-[90vh] bg-white p-4 md:p-6 rounded-[2rem] shadow-xl border-4 border-emerald-50 flex flex-col items-center justify-between gap-2 overflow-hidden">
-                                    <h2 className="text-3xl md:text-5xl font-black text-emerald-600 uppercase italic shrink-0 leading-none">IS IT HEALTHY?</h2>
+                                    <h2 className="text-3xl md:text-5xl font-black text-emerald-600 uppercase italic shrink-0 leading-none mt-4 md:mt-8">IS IT HEALTHY?</h2>
                                     <div className="flex-1 flex items-center justify-center min-h-0 w-full overflow-hidden">
                                         <motion.div key={sessionItems[currentIdx].name} initial={{ scale: 0.5 }} animate={{ scale: 1 }} className="text-[20vh] md:text-[25vh] leading-none select-none flex items-center justify-center">
                                             {sessionItems[currentIdx].icon}
