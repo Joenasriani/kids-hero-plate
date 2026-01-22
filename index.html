@@ -21,11 +21,11 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect } = React;
+        const { useState, useEffect, useMemo } = React;
         const { motion, AnimatePresence } = window.Motion;
 
         const Icons = {
-            Apple: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 8c1.657 0 3 .895 3 2s-1.343 2-3 2-3-.895-3-2 1.343-2 3-2z"/><path d="M12 12v6"/></svg>,
+            Apple: ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 8c1.657 0 3 .895 3 2s-1.343 2-3 2-3-.895-3-2 1.343-2 3-2z"/><path d="M12 12v6"/></svg>,
             Star: ({ className, fill }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill={fill || "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
             RefreshCcw: ({ size }) => <svg width={size} height={size} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>,
             Smartphone: ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>,
@@ -34,6 +34,57 @@
             XCircle: ({ size, className }) => <svg width={size} className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>,
             Maximize: ({ size }) => <svg width={size} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>,
             Minimize: ({ size }) => <svg width={size} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3"/><path d="M21 8h-3a2 2 0 0 1-2-2V3"/><path d="M3 16h3a2 2 0 0 1 2 2v3"/><path d="M16 21v-3a2 2 0 0 1 2-2h3"/></svg>
+        };
+
+        const Confetti = () => {
+            const colors = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
+            
+            // Stable piece data to prevent repeat bursts on re-render
+            const pieces = useMemo(() => {
+                return Array.from({ length: 80 }).map((_, i) => {
+                    const isLeft = i < 40;
+                    return {
+                        id: i,
+                        color: colors[Math.floor(Math.random() * colors.length)],
+                        initialX: isLeft ? -5 : 105,
+                        targetX: isLeft ? Math.random() * 60 : 40 + Math.random() * 60,
+                        sway: (Math.random() - 0.5) * 15,
+                        duration: 3 + Math.random() * 2,
+                        delay: Math.random() * 0.5,
+                        rotation: Math.random() * 1080
+                    };
+                });
+            }, []);
+
+            return (
+                <div className="fixed inset-0 pointer-events-none z-[120] overflow-hidden">
+                    {pieces.map((p) => (
+                        <motion.div
+                            key={p.id}
+                            initial={{ 
+                                top: "-10%", 
+                                left: `${p.initialX}%`,
+                                scale: 0,
+                                rotate: 0
+                            }}
+                            animate={{ 
+                                top: ["-10%", "20%", "115%"],
+                                left: [`${p.initialX}%`, `${p.targetX}%`, `${p.targetX + p.sway}%`],
+                                scale: [0, 1.2, 1],
+                                rotate: p.rotation
+                            }}
+                            transition={{ 
+                                duration: p.duration, 
+                                times: [0, 0.1, 1],
+                                ease: "easeOut",
+                                delay: p.delay
+                            }}
+                            className="absolute w-3 h-5 rounded-sm shadow-sm"
+                            style={{ backgroundColor: p.color }}
+                        />
+                    ))}
+                </div>
+            );
         };
 
         function App() {
@@ -45,6 +96,7 @@
             const [orientation, setOrientation] = useState('landscape');
             const [isFullscreen, setIsFullscreen] = useState(false);
             const [finalMessage, setFinalMessage] = useState('');
+            const [showPlayAgain, setShowPlayAgain] = useState(false);
 
             const ITEM_BANK = [
                 { type: 'healthy', icon: '🍎', name: 'Apple' },
@@ -70,11 +122,24 @@
             ];
 
             const MESSAGE_BANK = [
-                "You are a health superstar!", "Amazing choice making, hero!",
-                "Your body feels stronger already!", "You have the power of healthy habits!",
-                "Wow! You are a master of power-ups!", "Keep shining, healthy hero!",
-                "You are growing so strong and smart!", "Great job choosing energy for your day!",
-                "You are becoming a champion of wellness!", "Every healthy choice makes you a hero!"
+                "You are doing a great job with your choices!",
+                "Nice work picking good fuel for your body!",
+                "You are learning so much about healthy food!",
+                "Great effort on choosing your power-ups!",
+                "You are making very helpful choices today!",
+                "Keep going, you are doing a lovely job!",
+                "You are practicing your healthy habits well!",
+                "It is great to see you learning about food!",
+                "Good job picking things that give you energy!",
+                "Every choice helps you learn and grow!"
+            ];
+
+            const ADVICE_BANK = [
+                "Practicing helps us learn! Let's try more greens next time.",
+                "Every choice is a chance to learn about healthy fuel!",
+                "Let's look for more fruit power-ups in the next round!",
+                "Learning which foods help us play is part of the fun!",
+                "Let's try to pick a few more healthy items next time!"
             ];
 
             useEffect(() => {
@@ -89,6 +154,14 @@
                 };
             }, []);
 
+            useEffect(() => {
+                if (gameState === 'result') {
+                    setShowPlayAgain(false);
+                    const timer = setTimeout(() => setShowPlayAgain(true), 1200);
+                    return () => clearTimeout(timer);
+                }
+            }, [gameState]);
+
             const toggleFullScreen = () => {
                 if (!document.fullscreenElement) {
                     document.documentElement.requestFullscreen().catch(() => {});
@@ -99,9 +172,7 @@
 
             const startGame = () => {
                 const shuffledItems = [...ITEM_BANK].sort(() => 0.5 - Math.random()).slice(0, 10);
-                const randomMsg = MESSAGE_BANK[Math.floor(Math.random() * MESSAGE_BANK.length)];
                 setSessionItems(shuffledItems);
-                setFinalMessage(randomMsg);
                 setScore(0);
                 setCurrentIdx(0);
                 setUserAnswers([]);
@@ -111,11 +182,20 @@
             const handleChoice = (choice) => {
                 const currentItem = sessionItems[currentIdx];
                 const isCorrect = currentItem.type === choice;
-                if (isCorrect) setScore(s => s + 10);
-                setUserAnswers([...userAnswers, { ...currentItem, wasCorrect: isCorrect }]);
+                const newScore = isCorrect ? score + 10 : score;
+                setScore(newScore);
+                
+                const updatedAnswers = [...userAnswers, { ...currentItem, wasCorrect: isCorrect }];
+                setUserAnswers(updatedAnswers);
+
                 if (currentIdx < 9) {
                     setCurrentIdx(currentIdx + 1);
                 } else {
+                    if (newScore >= 70) {
+                        setFinalMessage(MESSAGE_BANK[Math.floor(Math.random() * MESSAGE_BANK.length)]);
+                    } else {
+                        setFinalMessage(ADVICE_BANK[Math.floor(Math.random() * ADVICE_BANK.length)]);
+                    }
                     setTimeout(() => setGameState('result'), 500);
                 }
             };
@@ -125,7 +205,7 @@
                     {orientation === 'portrait' && gameState === 'game' && (
                         <div className="fixed inset-0 z-[100] bg-slate-900 flex flex-col items-center justify-center text-white p-6 text-center">
                             <Icons.Smartphone className="w-12 h-12 mb-4 animate-bounce text-emerald-400" />
-                            <p className="font-bold uppercase tracking-widest text-sm">Rotate Screen for Landscape</p>
+                            <p className="font-bold uppercase tracking-widest text-sm text-amber-500">Rotate Screen for Landscape</p>
                         </div>
                     )}
 
@@ -140,7 +220,7 @@
                                 <span className="text-base md:text-xl font-black text-emerald-600">{score}</span>
                             </div>
                             <div className="flex-1 max-w-[150px] md:max-w-xs mx-4">
-                                <div className="bg-slate-200 h-2 md:h-3 rounded-full overflow-hidden border border-white">
+                                <div className="bg-slate-200 h-2 md:h-3 rounded-full overflow-hidden border border-white shadow-inner">
                                     <motion.div animate={{ width: `${(currentIdx / 10) * 100}%` }} className="bg-emerald-500 h-full" />
                                 </div>
                             </div>
@@ -154,39 +234,42 @@
                         <AnimatePresence mode="wait">
                             {gameState === 'menu' && (
                                 <motion.div key="menu" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-lg bg-white p-6 md:p-8 rounded-[2rem] shadow-xl border-b-[8px] border-emerald-100 text-center space-y-4 flex flex-col items-center justify-center max-h-[90vh] overflow-hidden">
-                                    <div className="bg-emerald-50 w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center border-4 border-emerald-100 shrink-0"><Icons.Apple /></div>
+                                    <div className="bg-emerald-50 w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center border-4 border-emerald-600 shrink-0 text-emerald-600">
+                                        <Icons.Apple className="w-10 h-10 md:w-12 md:h-12" />
+                                    </div>
                                     <div className="space-y-1">
                                         <h1 className="text-3xl md:text-5xl font-black text-emerald-600 italic uppercase leading-none">Hero Plate</h1>
-                                        <p className="text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-[0.2em]">Quest for Health</p>
+                                        <p className="text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-[0.2em]">Learning Quest</p>
                                     </div>
-                                    <button onClick={startGame} className="w-full max-w-xs bg-emerald-500 text-white text-lg md:text-2xl font-black py-3 md:py-4 rounded-full shadow-lg active:scale-95 uppercase tracking-tighter">Start Training</button>
+                                    <button onClick={startGame} className="w-full max-w-xs bg-emerald-500 text-white text-lg md:text-2xl font-black py-3 md:py-4 rounded-full shadow-lg active:scale-95 uppercase tracking-tighter hover:bg-emerald-600 transition-colors">Start Quest</button>
                                 </motion.div>
                             )}
 
                             {gameState === 'game' && sessionItems[currentIdx] && (
                                 <motion.div key={currentIdx} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-xl h-full max-h-[90vh] bg-white p-4 md:p-6 rounded-[2rem] shadow-xl border-4 border-emerald-50 flex flex-col items-center justify-between gap-2 overflow-hidden">
-                                    <h2 className="text-lg md:text-2xl font-black text-slate-600 uppercase shrink-0">Is this healthy?</h2>
+                                    <h2 className="text-3xl md:text-5xl font-black text-emerald-600 uppercase italic shrink-0 leading-none">IS IT HEALTHY?</h2>
                                     <div className="flex-1 flex items-center justify-center min-h-0 w-full overflow-hidden">
                                         <motion.div key={sessionItems[currentIdx].name} initial={{ scale: 0.5 }} animate={{ scale: 1 }} className="text-[20vh] md:text-[25vh] leading-none select-none flex items-center justify-center">
                                             {sessionItems[currentIdx].icon}
                                         </motion.div>
                                     </div>
                                     <div className="flex gap-4 w-full max-w-sm shrink-0 pb-1">
-                                        <button onClick={() => handleChoice('healthy')} className="flex-1 bg-emerald-500 text-white py-3 md:py-4 rounded-2xl text-xl md:text-2xl font-black shadow-lg active:scale-95 uppercase">Yes</button>
-                                        <button onClick={() => handleChoice('unhealthy')} className="flex-1 bg-red-400 text-white py-3 md:py-4 rounded-2xl text-xl md:text-2xl font-black shadow-lg active:scale-95 uppercase">No</button>
+                                        <button onClick={() => handleChoice('healthy')} className="flex-1 bg-emerald-500 text-white py-3 md:py-4 rounded-2xl text-xl md:text-2xl font-black shadow-lg active:scale-95 uppercase hover:bg-emerald-600 transition-colors">Yes</button>
+                                        <button onClick={() => handleChoice('unhealthy')} className="flex-1 bg-emerald-500 text-white py-3 md:py-4 rounded-2xl text-xl md:text-2xl font-black shadow-lg active:scale-95 uppercase hover:bg-emerald-600 transition-colors">No</button>
                                     </div>
                                 </motion.div>
                             )}
 
                             {gameState === 'result' && (
                                 <motion.div key="result" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white p-4 md:p-6 rounded-[2.5rem] shadow-2xl max-w-3xl w-full h-full max-h-[96vh] text-center border-b-[10px] border-emerald-100 flex flex-col justify-between overflow-hidden">
-                                    <div className="shrink-0 flex flex-col items-center pt-1"><Icons.Trophy className="w-8 h-8 md:w-12 md:h-12 text-yellow-500 mb-1" /><h2 className="text-xl md:text-3xl font-black text-emerald-600 uppercase tracking-tighter leading-none">Mission Success</h2></div>
-                                    <div className="bg-emerald-50 rounded-[1.5rem] p-3 md:p-4 flex items-center gap-4 justify-center min-h-0 flex-1 my-2 overflow-hidden">
-                                        <div className="text-center bg-white p-3 rounded-xl border-2 border-emerald-100 shrink-0">
+                                    {score >= 90 && <Confetti />}
+                                    <div className="shrink-0 flex flex-col items-center pt-1"><Icons.Trophy className="w-8 h-8 md:w-12 md:h-12 text-yellow-500 mb-1" /><h2 className="text-xl md:text-3xl font-black text-emerald-600 uppercase tracking-tighter leading-none">Quest Complete</h2></div>
+                                    <div className="bg-emerald-50 rounded-[1.5rem] p-3 md:p-4 flex items-center gap-4 justify-center min-h-0 flex-1 my-2 overflow-hidden relative">
+                                        <div className="text-center bg-white p-3 rounded-xl border-2 border-emerald-100 shrink-0 z-10">
                                             <div className="text-3xl md:text-5xl font-black text-emerald-600 leading-none">{score}</div>
-                                            <div className="text-[8px] font-black text-emerald-400 uppercase mt-1">Score</div>
+                                            <div className="text-[8px] font-black text-emerald-400 uppercase mt-1">Points</div>
                                         </div>
-                                        <div className="text-left overflow-hidden"><p className="text-base md:text-xl font-black text-slate-700 leading-tight italic line-clamp-2 md:line-clamp-none">"{finalMessage}"</p></div>
+                                        <div className="text-left overflow-hidden z-10"><p className="text-xl md:text-3xl font-black text-slate-700 leading-tight italic line-clamp-2 md:line-clamp-none">"{finalMessage}"</p></div>
                                     </div>
                                     <div className="grid grid-cols-5 gap-1.5 mb-3 shrink-0 px-1">
                                         {userAnswers.map((item, i) => (
@@ -196,7 +279,18 @@
                                             </div>
                                         ))}
                                     </div>
-                                    <button onClick={startGame} className="shrink-0 w-full max-w-xs mx-auto bg-slate-800 text-white py-3 rounded-full text-base md:text-lg font-black shadow-lg flex items-center justify-center gap-2 active:scale-95 uppercase tracking-wider"><Icons.RefreshCcw size={16} /> Play Again</button>
+                                    <div className="h-14 md:h-16 flex items-center justify-center shrink-0 w-full overflow-hidden">
+                                        {showPlayAgain && (
+                                            <motion.button 
+                                                initial={{ opacity: 0, y: 10 }} 
+                                                animate={{ opacity: 1, y: 0 }} 
+                                                onClick={startGame} 
+                                                className="w-full max-w-xs bg-emerald-500 text-white py-3 rounded-full text-base md:text-lg font-black shadow-lg flex items-center justify-center gap-2 active:scale-95 uppercase tracking-wider hover:bg-emerald-600 transition-colors"
+                                            >
+                                                <Icons.RefreshCcw size={16} /> Play Again
+                                            </motion.button>
+                                        )}
+                                    </div>
                                 </motion.div>
                             )}
                         </AnimatePresence>
@@ -212,5 +306,3 @@
     </script>
 </body>
 </html>
-
-
