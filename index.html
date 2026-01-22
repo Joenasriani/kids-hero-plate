@@ -38,7 +38,6 @@
 
         const Confetti = () => {
             const colors = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
-            
             const pieces = useMemo(() => {
                 return Array.from({ length: 80 }).map((_, i) => {
                     const isLeft = i < 40;
@@ -60,24 +59,14 @@
                     {pieces.map((p) => (
                         <motion.div
                             key={p.id}
-                            initial={{ 
-                                top: "-10%", 
-                                left: `${p.initialX}%`,
-                                scale: 0,
-                                rotate: 0
-                            }}
+                            initial={{ top: "-10%", left: `${p.initialX}%`, scale: 0, rotate: 0 }}
                             animate={{ 
                                 top: ["-10%", "20%", "115%"],
                                 left: [`${p.initialX}%`, `${p.targetX}%`, `${p.targetX + p.sway}%`],
                                 scale: [0, 1.2, 1],
                                 rotate: p.rotation
                             }}
-                            transition={{ 
-                                duration: p.duration, 
-                                times: [0, 0.1, 1],
-                                ease: "easeOut",
-                                delay: p.delay
-                            }}
+                            transition={{ duration: p.duration, times: [0, 0.1, 1], ease: "easeOut", delay: p.delay }}
                             className="absolute w-3 h-5 rounded-sm shadow-sm"
                             style={{ backgroundColor: p.color }}
                         />
@@ -124,21 +113,14 @@
                 "You are doing a great job with your choices!",
                 "Nice work picking good fuel for your body!",
                 "You are learning so much about healthy food!",
-                "Great effort on choosing your power-ups!",
-                "You are making very helpful choices today!",
-                "Keep going, you are doing a lovely job!",
-                "You are practicing your healthy habits well!",
-                "It is great to see you learning about food!",
-                "Good job picking things that give you energy!",
-                "Every choice helps you learn and grow!"
+                "Great effort on choosing your power-ups!"
             ];
 
-            const ADVICE_BANK = [
-                "Practicing helps us learn! Let's try more greens next time.",
-                "Every choice is a chance to learn about healthy fuel!",
-                "Let's look for more fruit power-ups in the next round!",
-                "Learning which foods help us play is part of the fun!",
-                "Let's try to pick a few more healthy items next time!"
+            const LOW_SCORE_ADVICE = [
+                "Oops! Our hero needs better fuel. Let's try picking more healthy snacks next time to stay strong and fast!",
+                "Let's practice picking more hero food! Fresh fruits and veggies help you grow and play better.",
+                "Your hero body needs healthy choices! Let's try to pick more fresh fuel in the next round.",
+                "We can do better! Healthy food gives you the best energy to win your hero quests!"
             ];
 
             useEffect(() => {
@@ -190,10 +172,14 @@
                 if (currentIdx < 9) {
                     setCurrentIdx(currentIdx + 1);
                 } else {
-                    if (newScore >= 70) {
+                    if (newScore >= 90) {
                         setFinalMessage(MESSAGE_BANK[Math.floor(Math.random() * MESSAGE_BANK.length)]);
+                    } else if (newScore >= 60 && newScore <= 80) {
+                        setFinalMessage("Good enough, but let's try to make better, healthier choices next time!");
+                    } else if (newScore < 40) {
+                        setFinalMessage(LOW_SCORE_ADVICE[Math.floor(Math.random() * LOW_SCORE_ADVICE.length)]);
                     } else {
-                        setFinalMessage(ADVICE_BANK[Math.floor(Math.random() * ADVICE_BANK.length)]);
+                        setFinalMessage("You are learning! Practice choosing healthy snacks to get even stronger!");
                     }
                     setTimeout(() => setGameState('result'), 500);
                 }
@@ -220,7 +206,7 @@
                             </div>
                             <div className="flex-1 max-w-[150px] md:max-w-xs mx-4">
                                 <div className="bg-slate-200 h-2 md:h-3 rounded-full overflow-hidden border border-white shadow-inner">
-                                    <motion.div animate={{ width: `${(currentIdx / 10) * 100}%` }} className="bg-emerald-500 h-full" />
+                                    <div style={{ width: `${(currentIdx / 10) * 100}%` }} className="bg-emerald-500 h-full transition-all duration-300" />
                                 </div>
                             </div>
                             <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest hidden sm:block">
@@ -262,13 +248,20 @@
                             {gameState === 'result' && (
                                 <motion.div key="result" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white p-4 md:p-6 rounded-[2.5rem] shadow-2xl max-w-3xl w-full h-full max-h-[96vh] text-center border-b-[10px] border-emerald-100 flex flex-col justify-between overflow-hidden">
                                     {score >= 90 && <Confetti />}
-                                    <div className="shrink-0 flex flex-col items-center pt-1"><Icons.Trophy className="w-8 h-8 md:w-12 md:h-12 text-yellow-500 mb-1" /><h2 className="text-xl md:text-3xl font-black text-emerald-600 uppercase tracking-tighter leading-none">Quest Complete</h2></div>
+                                    <div className="shrink-0 flex flex-col items-center pt-1">
+                                        <Icons.Trophy className={`w-8 h-8 md:w-12 md:h-12 ${score >= 90 ? 'text-yellow-500' : 'text-slate-300'} mb-1`} />
+                                        <h2 className="text-xl md:text-3xl font-black text-emerald-600 uppercase tracking-tighter leading-none">Quest Complete</h2>
+                                    </div>
                                     <div className="bg-emerald-50 rounded-[1.5rem] p-3 md:p-4 flex items-center gap-4 justify-center min-h-0 flex-1 my-2 overflow-hidden relative">
                                         <div className="text-center bg-white p-3 rounded-xl border-2 border-emerald-100 shrink-0 z-10">
-                                            <div className="text-3xl md:text-5xl font-black text-emerald-600 leading-none">{score}</div>
+                                            <div className={`text-3xl md:text-5xl font-black ${score < 40 ? 'text-red-500' : 'text-emerald-600'} leading-none`}>{score}</div>
                                             <div className="text-[8px] font-black text-emerald-400 uppercase mt-1">Points</div>
                                         </div>
-                                        <div className="text-left overflow-hidden z-10"><p className="text-xl md:text-3xl font-black text-slate-700 leading-tight italic line-clamp-2 md:line-clamp-none">"{finalMessage}"</p></div>
+                                        <div className="text-left overflow-hidden z-10">
+                                            <p className={`text-xl md:text-3xl font-black ${score < 40 ? 'text-red-500' : 'text-slate-700'} leading-tight italic line-clamp-3 md:line-clamp-none`}>
+                                                "{finalMessage}"
+                                            </p>
+                                        </div>
                                     </div>
                                     <div className="grid grid-cols-5 gap-1.5 mb-3 shrink-0 px-1">
                                         {userAnswers.map((item, i) => (
