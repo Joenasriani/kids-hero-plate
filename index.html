@@ -13,20 +13,20 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: f0fdf4; 
+            background-color: rgb(240, 253, 244); 
             margin: 0; 
             overflow: hidden; 
             touch-action: none; 
         }
         .hero-gradient { 
-            background: radial-gradient(circle at top right, d1fae5 0%, transparent 50%), radial-gradient(circle at bottom left, fef3c7 0%, transparent 50%); 
+            background: radial-gradient(circle at top right, rgb(209, 250, 229) 0%, transparent 50%), radial-gradient(circle at bottom left, rgb(254, 243, 199) 0%, transparent 50%); 
         }
         .fluid-title { font-size: clamp(2rem, 10vmin, 12rem); }
         .fluid-subtitle { font-size: clamp(0.8rem, 2vmin, 3rem); }
         .fluid-question { font-size: clamp(2rem, 9vmin, 14rem); }
         .fluid-emoji { font-size: clamp(100px, 35vmin, 450px); }
         .fluid-points { font-size: clamp(1.2rem, 4vmin, 6rem); }
-        .fluid-button { font-size: clamp(1rem, 3vmin, 5rem); }
+        .fluid-button { font-size: clamp(1rem, 3.5vmin, 5rem); }
         .fluid-feedback { font-size: clamp(1.2rem, 3.5vmin, 7rem); }
     </style>
 </head>
@@ -38,7 +38,6 @@
         const { motion, AnimatePresence } = window.Motion;
 
         const Icons = {
-            Apple: ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 8c1.657 0 3 .895 3 2s-1.343 2-3 2-3-.895-3-2 1.343-2 3-2z"/><path d="M12 12v6"/></svg>,
             Star: ({ className, fill }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={fill || "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
             RefreshCcw: ({ size }) => <svg width={size} height={size} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>,
             Smartphone: ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>,
@@ -57,8 +56,25 @@
             )
         };
 
+        const Wallpaper = () => {
+            const icons = ["🍎", "🥦", "🥕", "🍓", "🍉", "🍇", "🌽", "🍊", "🍍", "🥬", "🍅", "🍒", "🍐", "🥑", "🍆"];
+            return (
+                <div className="fixed inset-0 pointer-events-none opacity-[0.16] z-0 overflow-hidden select-none flex flex-wrap justify-around items-center gap-[8vmin] p-[2vmin]">
+                    {Array.from({ length: 240 }).map((_, i) => (
+                        <div 
+                            key={i} 
+                            style={{ transform: "rotate(" + ((i * 137.5) % 360) + "deg)" }} 
+                            className="text-[6vmin] grayscale-[0.2]"
+                        >
+                            {icons[i % icons.length]}
+                        </div>
+                    ))}
+                </div>
+            );
+        };
+
         const Confetti = () => {
-            const colors = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
+            const colors = ["rgb(16, 185, 129)", "rgb(59, 130, 246)", "rgb(245, 158, 11)", "rgb(239, 68, 68)", "rgb(139, 92, 246)"];
             const pieces = useMemo(() => {
                 return Array.from({ length: 80 }).map((_, i) => {
                     const isLeft = i < 40;
@@ -80,16 +96,16 @@
                     {pieces.map((p) => (
                         <motion.div
                             key={p.id}
-                            initial={{ top: "-10%", left: `${p.initialX}%`, scale: 0, rotate: 0 }}
+                            initial={{ top: "-10%", left: p.initialX + "%", scale: 0, rotate: 0 }}
                             animate={{ 
                                 top: ["-10%", "20%", "115%"],
-                                left: [`${p.initialX}%`, `${p.targetX}%`, `${p.targetX + p.sway}%`],
+                                left: [p.initialX + "%", p.targetX + "%", (p.targetX + p.sway) + "%"],
                                 scale: [0, 1.2, 1],
                                 rotate: p.rotation
                             }}
                             transition={{ duration: p.duration, times: [0, 0.1, 1], ease: "easeOut", delay: p.delay }}
                             className="absolute w-[1vmin] h-[2vmin] rounded-sm shadow-sm"
-                            style={{ backgroundColor: `${p.color}` }}
+                            style={{ backgroundColor: p.color }}
                         />
                     ))}
                 </div>
@@ -97,37 +113,36 @@
         };
 
         function App() {
-            const [gameState, setGameState] = useState('menu'); 
+            const [gameState, setGameState] = useState("menu"); 
             const [score, setScore] = useState(0);
             const [currentIdx, setCurrentIdx] = useState(0);
             const [userAnswers, setUserAnswers] = useState([]);
             const [sessionItems, setSessionItems] = useState([]);
-            const [orientation, setOrientation] = useState('landscape');
+            const [orientation, setOrientation] = useState("landscape");
             const [isFullscreen, setIsFullscreen] = useState(false);
-            const [finalMessage, setFinalMessage] = useState('');
+            const [finalMessage, setFinalMessage] = useState("");
             const [showPlayAgain, setShowPlayAgain] = useState(false);
 
             const ITEM_BANK = [
-                { type: 'healthy', icon: '🍎', name: 'Apple' },
-                { type: 'unhealthy', icon: '🍭', name: 'Candy' },
-                { type: 'healthy', icon: '🥦', name: 'Broccoli' },
-                { type: 'healthy', icon: '💧', name: 'Water' },
-                { type: 'unhealthy', icon: '🥤', name: 'Soda' },
-                { type: 'healthy', icon: '🥕', name: 'Carrot' },
-                { type: 'unhealthy', icon: '🍕', name: 'Pizza' },
-                { type: 'healthy', icon: '🍌', name: 'Banana' },
-                { type: 'unhealthy', icon: '🍩', name: 'Donut' },
-                { type: 'healthy', icon: '🍓', name: 'Strawberry' },
-                { type: 'unhealthy', icon: '🍟', name: 'Fries' },
-                { type: 'healthy', icon: '🥚', name: 'Egg' },
-                { type: 'unhealthy', icon: '🍔', name: 'Burger' },
-                { type: 'healthy', icon: '🍉', name: 'Watermelon' },
-                { type: 'unhealthy', icon: '🍦', name: 'Ice Cream' },
-                { type: 'healthy', icon: '🍇', name: 'Grapes' },
-                { type: 'healthy', icon: '🌽', name: 'Corn' },
-                { type: 'healthy', icon: '🍊', name: 'Orange' },
-                { type: 'unhealthy', icon: '🍰', name: 'Cake' },
-                { type: 'unhealthy', icon: '🌭', name: 'Hot Dog' }
+                { type: "healthy", icon: "🍎", name: "Apple" },
+                { type: "unhealthy", icon: "🍭", name: "Candy" },
+                { type: "healthy", icon: "🥦", name: "Broccoli" },
+                { type: "healthy", icon: "💧", name: "Water" },
+                { type: "unhealthy", icon: "🥤", name: "Soda" },
+                { type: "healthy", icon: "🥕", name: "Carrot" },
+                { type: "unhealthy", icon: "🍕", name: "Pizza" },
+                { type: "unhealthy", icon: "🍩", name: "Donut" },
+                { type: "healthy", icon: "🍓", name: "Strawberry" },
+                { type: "unhealthy", icon: "🍟", name: "Fries" },
+                { type: "healthy", icon: "🥚", name: "Egg" },
+                { type: "unhealthy", icon: "🍔", name: "Burger" },
+                { type: "healthy", icon: "🍉", name: "Watermelon" },
+                { type: "unhealthy", icon: "🍦", name: "Ice Cream" },
+                { type: "healthy", icon: "🍇", name: "Grapes" },
+                { type: "healthy", icon: "🌽", name: "Corn" },
+                { type: "healthy", icon: "🍊", name: "Orange" },
+                { type: "unhealthy", icon: "🍰", name: "Cake" },
+                { type: "unhealthy", icon: "🌭", name: "Hot Dog" }
             ];
 
             const MESSAGE_BANK = [
@@ -137,19 +152,18 @@
                 "Great effort on choosing your power-ups!"
             ];
 
-            // Idle Timer Logic
             useEffect(() => {
                 let idleTimeout;
                 const resetTimer = () => {
                     if (idleTimeout) clearTimeout(idleTimeout);
                     idleTimeout = setTimeout(() => {
-                        if (gameState !== 'menu') setGameState('menu');
+                        if (gameState !== "menu") setGameState("menu");
                     }, 180000);
                 };
 
-                if (gameState !== 'menu') {
+                if (gameState !== "menu") {
                     resetTimer();
-                    const events = ['mousemove', 'mousedown', 'touchstart', 'keydown'];
+                    const events = ["mousemove", "mousedown", "touchstart", "keydown"];
                     events.forEach(e => window.addEventListener(e, resetTimer));
                     return () => {
                         clearTimeout(idleTimeout);
@@ -159,19 +173,19 @@
             }, [gameState]);
 
             useEffect(() => {
-                const checkOrientation = () => setOrientation(window.innerWidth > window.innerHeight ? 'landscape' : 'portrait');
+                const checkOrientation = () => setOrientation(window.innerWidth > window.innerHeight ? "landscape" : "portrait");
                 const handleFSChange = () => setIsFullscreen(!!document.fullscreenElement);
-                window.addEventListener('resize', checkOrientation);
-                document.addEventListener('fullscreenchange', handleFSChange);
+                window.addEventListener("resize", checkOrientation);
+                document.addEventListener("fullscreenchange", handleFSChange);
                 checkOrientation();
                 return () => {
-                    window.removeEventListener('resize', checkOrientation);
-                    document.removeEventListener('fullscreenchange', handleFSChange);
+                    window.removeEventListener("resize", checkOrientation);
+                    document.removeEventListener("fullscreenchange", handleFSChange);
                 };
             }, []);
 
             useEffect(() => {
-                if (gameState === 'result') {
+                if (gameState === "result") {
                     setShowPlayAgain(false);
                     const timer = setTimeout(() => setShowPlayAgain(true), 1200);
                     return () => clearTimeout(timer);
@@ -192,7 +206,7 @@
                 setScore(0);
                 setCurrentIdx(0);
                 setUserAnswers([]);
-                setGameState('game');
+                setGameState("game");
             };
 
             const handleChoice = (choice) => {
@@ -217,13 +231,32 @@
                     } else {
                         setFinalMessage("You are learning! Practice choosing healthy snacks to get even stronger!");
                     }
-                    setTimeout(() => setGameState('result'), 500);
+                    setTimeout(() => setGameState("result"), 500);
+                }
+            };
+
+            const getIconAnimationDelay = (index) => {
+                if (!userAnswers[index]) return 0;
+                const goodIndices = userAnswers.map((a, i) => a.wasCorrect ? i : -1).filter(i => i !== -1);
+                const badIndices = userAnswers.map((a, i) => a.wasCorrect ? -1 : i).filter(i => i !== -1);
+                
+                const baseDelay = 1.6; // Starts smoothly after the button finish entry
+                const interval = 0.25;
+
+                if (userAnswers[index].wasCorrect) {
+                    const order = goodIndices.indexOf(index);
+                    return baseDelay + (order * interval);
+                } else {
+                    const order = badIndices.indexOf(index);
+                    return baseDelay + (goodIndices.length * interval) + (order * interval);
                 }
             };
 
             return (
                 <div className="fixed inset-0 bg-emerald-50 hero-gradient overflow-hidden flex flex-col h-[100dvh] p-[2vmin]">
-                    {orientation === 'portrait' && gameState === 'game' && (
+                    <Wallpaper />
+
+                    {orientation === "portrait" && gameState === "game" && (
                         <div className="fixed inset-0 z-[150] bg-slate-900 flex flex-col items-center justify-center text-white p-6 text-center">
                             <Icons.Smartphone className="w-[10vmin] h-[10vmin] mb-4 animate-bounce text-emerald-400" />
                             <p className="font-black uppercase tracking-widest text-[4vmin] text-amber-500">Rotate for Landscape</p>
@@ -234,10 +267,10 @@
                         onClick={toggleFullScreen} 
                         className="fixed top-[3vmin] right-[3vmin] z-[130] bg-white/95 backdrop-blur p-[2vmin] rounded-full shadow-xl border-2 border-emerald-100 text-emerald-600 active:scale-90 transition-all flex items-center justify-center"
                     >
-                        {isFullscreen ? <Icons.Minimize size="3vmin" /> : <Icons.Maximize size={3vmin} />}
+                        {isFullscreen ? <Icons.Minimize size="3vmin" /> : <Icons.Maximize size="3vmin" />}
                     </button>
 
-                    {gameState === 'game' && (
+                    {gameState === "game" && (
                         <header className="flex-none w-full flex justify-between items-center z-10 mb-[2vmin] pr-[8vmin]">
                             <div className="flex items-center gap-[1.5vmin] bg-white px-[3vmin] py-[1.5vmin] rounded-2xl border-[0.4vmin] border-emerald-200 shadow-lg">
                                 <Icons.Star className="w-[4vmin] h-[4vmin] text-yellow-500" fill="currentColor" />
@@ -245,7 +278,7 @@
                             </div>
                             <div className="flex-1 max-w-[30vw] mx-[4vmin]">
                                 <div className="bg-slate-200 h-[1.5vmin] rounded-full overflow-hidden border-[0.2vmin] border-white shadow-inner">
-                                    <div style={{ width: `${(currentIdx / 10) * 100}%` }} className="bg-emerald-500 h-full transition-all duration-300" />
+                                    <div style={{ width: (currentIdx * 10) + "%" }} className="bg-emerald-500 h-full transition-all duration-300" />
                                 </div>
                             </div>
                             <div className="text-[2.5vmin] font-black text-slate-400 uppercase tracking-tighter hidden md:block">
@@ -256,25 +289,30 @@
 
                     <main className="flex-1 relative flex items-center justify-center min-h-0">
                         <AnimatePresence mode="wait">
-                            {gameState === 'menu' && (
-                                <motion.div key="menu" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-[80vw] h-fit bg-white p-[6vmin] rounded-[5vmin] shadow-2xl border-b-[1.5vmin] border-emerald-100 text-center flex flex-col items-center justify-center gap-[4vmin] overflow-hidden">
+                            {gameState === "menu" && (
+                                <motion.div key="menu" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-[85vw] h-fit bg-white/90 backdrop-blur-sm p-[6vmin] rounded-[5vmin] shadow-2xl border-b-[1.5vmin] border-emerald-100 text-center flex flex-col items-center justify-center gap-[5vmin] overflow-hidden z-10">
                                     <motion.div 
                                         animate={{ rotate: 360 }}
-                                        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                                        className="bg-emerald-50 w-[15vmin] h-[15vmin] md:w-[20vmin] md:h-[20vmin] rounded-full flex items-center justify-center border-[0.8vmin] border-emerald-600 shrink-0 text-emerald-600 shadow-xl"
+                                        transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+                                        className="bg-emerald-50 w-[20vmin] h-[20vmin] md:w-[25vmin] md:h-[25vmin] rounded-full flex items-center justify-center border-[0.8vmin] border-emerald-600 shrink-0 shadow-xl relative"
                                     >
-                                        <Icons.Apple className="w-[10vmin] h-[10vmin]" />
+                                        <span className="text-[12vmin] select-none">🍇</span>
                                     </motion.div>
                                     <div className="space-y-[1vmin]">
                                         <h1 className="fluid-title font-[900] text-emerald-600 italic uppercase leading-none">Hero Plate</h1>
-                                        <p className="fluid-subtitle text-slate-400 font-bold uppercase tracking-[0.3em]">Learning Quest</p>
+                                        <p className="fluid-subtitle text-slate-400 font-bold uppercase tracking-[0.3em]">PICK THE CORRECT ANSWER</p>
                                     </div>
-                                    <button onClick={startGame} className="w-full max-w-[40vw] bg-emerald-500 text-white py-[3vmin] rounded-full shadow-2xl active:scale-95 uppercase font-[900] fluid-button hover:bg-emerald-600 transition-colors">Start Quest</button>
+                                    <button 
+                                        onClick={startGame} 
+                                        className="w-full max-w-[45vw] bg-emerald-500 text-white py-[3vmin] md:py-[4vmin] rounded-full shadow-2xl active:scale-95 uppercase font-[900] fluid-button hover:bg-emerald-600 transition-all border-[0.6vmin] border-white shrink-0"
+                                    >
+                                        START GAME
+                                    </button>
                                 </motion.div>
                             )}
 
-                            {gameState === 'game' && sessionItems[currentIdx] && (
-                                <motion.div key={currentIdx} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-[90vw] h-full max-h-[85vh] bg-white p-[4vmin] rounded-[6vmin] shadow-2xl border-[0.6vmin] border-emerald-50 flex flex-col items-center justify-between gap-[2vmin] overflow-hidden">
+                            {gameState === "game" && sessionItems[currentIdx] && (
+                                <motion.div key={currentIdx} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-[90vw] h-full max-h-[85vh] bg-white/90 backdrop-blur-sm p-[4vmin] rounded-[6vmin] shadow-2xl border-[0.6vmin] border-emerald-50 flex flex-col items-center justify-between gap-[2vmin] overflow-hidden z-10">
                                     <h2 className="fluid-question font-[900] text-emerald-600 uppercase italic shrink-0 leading-none tracking-tighter text-center mt-[2vmin]">IS IT HEALTHY?</h2>
                                     <div className="flex-1 flex items-center justify-center min-h-0 w-full overflow-hidden">
                                         <motion.div key={sessionItems[currentIdx].name} initial={{ scale: 0.5 }} animate={{ scale: 1 }} className="fluid-emoji leading-none select-none flex items-center justify-center">
@@ -282,43 +320,64 @@
                                         </motion.div>
                                     </div>
                                     <div className="flex gap-[4vmin] w-full max-w-[60vw] shrink-0 pb-[2vmin]">
-                                        <button onClick={() => handleChoice('healthy')} className="flex-1 bg-emerald-500 text-white py-[3vmin] rounded-[3vmin] fluid-button font-[900] shadow-2xl active:scale-95 uppercase hover:bg-emerald-600 transition-colors">Yes</button>
-                                        <button onClick={() => handleChoice('unhealthy')} className="flex-1 bg-emerald-500 text-white py-[3vmin] rounded-[3vmin] fluid-button font-[900] shadow-2xl active:scale-95 uppercase hover:bg-emerald-600 transition-colors">No</button>
+                                        <button onClick={() => handleChoice("healthy")} className="flex-1 bg-emerald-500 text-white py-[3vmin] rounded-[3vmin] fluid-button font-[900] shadow-2xl active:scale-95 uppercase hover:bg-emerald-600 transition-colors">Yes</button>
+                                        <button onClick={() => handleChoice("unhealthy")} className="flex-1 bg-emerald-500 text-white py-[3vmin] rounded-[3vmin] fluid-button font-[900] shadow-2xl active:scale-95 uppercase hover:bg-emerald-600 transition-colors">No</button>
                                     </div>
                                 </motion.div>
                             )}
 
-                            {gameState === 'result' && (
-                                <motion.div key="result" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white p-[4vmin] rounded-[6vmin] shadow-2xl w-full max-w-[85vw] h-full max-h-[90vh] text-center border-b-[2vmin] border-emerald-100 flex flex-col justify-between items-center overflow-hidden">
+                            {gameState === "result" && (
+                                <motion.div key="result" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white/90 backdrop-blur-sm p-[4vmin] rounded-[6vmin] shadow-2xl w-full max-w-[85vw] h-full max-h-[90vh] text-center border-b-[2vmin] border-emerald-100 flex flex-col justify-between items-center overflow-hidden z-10">
                                     {score >= 90 && <Confetti />}
                                     <div className="shrink-0 flex flex-col items-center pt-[1vmin]">
-                                        <Icons.Trophy className={`w-[8vmin] h-[8vmin] ${score >= 90 ? 'text-yellow-500' : 'text-slate-300'} mb-[1vmin]`} />
-                                        <h2 className="fluid-button font-[900] text-emerald-600 uppercase tracking-tighter leading-none">Quest Complete</h2>
+                                        <Icons.Trophy className={"w-[8vmin] h-[8vmin] " + (score >= 90 ? "text-yellow-500" : "text-slate-300") + " mb-[1vmin]"} />
+                                        <h2 className="fluid-button font-[900] text-slate-300 uppercase tracking-tighter leading-none">YOUR RESULT</h2>
                                     </div>
-                                    <div className="bg-emerald-50 rounded-[4vmin] p-[3vmin] flex items-center gap-[4vmin] justify-center min-h-0 flex-1 my-[2vmin] w-full overflow-hidden border-[0.3vmin] border-emerald-100 shadow-inner">
+                                    <div className="bg-emerald-50/50 rounded-[4vmin] p-[3vmin] flex items-center gap-[4vmin] justify-center min-h-0 flex-1 my-[2vmin] w-full overflow-hidden border-[0.3vmin] border-emerald-100 shadow-inner">
                                         <div className="text-center bg-white p-[3vmin] rounded-[3vmin] border-[0.4vmin] border-emerald-100 shrink-0 z-10 shadow-lg">
-                                            <div className={`fluid-question font-[900] ${score <= 30 ? 'text-red-500' : 'text-emerald-600'} leading-none`}>{score}</div>
+                                            <div className={"fluid-question font-[900] " + (score <= 30 ? "text-red-500" : "text-emerald-600") + " leading-none"}>{score}</div>
                                             <div className="fluid-subtitle font-black text-emerald-400 uppercase">Points</div>
                                         </div>
                                         <div className="text-left overflow-hidden z-10 flex-1">
-                                            <p className={`fluid-feedback font-black ${score <= 30 ? 'text-red-500' : 'text-slate-700'} leading-tight italic line-clamp-3`}>
+                                            <p className={"fluid-feedback font-black " + (score <= 30 ? "text-red-500" : "text-slate-700") + " leading-tight italic line-clamp-3"}>
                                                 "{finalMessage}"
                                             </p>
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-5 gap-[1.5vmin] mb-[2vmin] shrink-0 w-full px-[2vmin]">
                                         {userAnswers.map((item, i) => (
-                                            <div key={i} className={`p-[1.5vmin] rounded-[3vmin] border-[0.3vmin] flex flex-col items-center justify-center gap-[0.5vmin] ${item.wasCorrect ? 'border-emerald-100 bg-emerald-50 shadow-emerald-100/50' : 'border-red-50 bg-red-50 shadow-red-100/50'} shadow-md`}>
-                                                <span className="text-[5vmin] leading-none">{item.icon}</span>
+                                            <motion.div 
+                                                key={i} 
+                                                animate={{ 
+                                                    borderColor: [
+                                                        item.wasCorrect ? "rgba(16,185,129,0.1)" : "rgba(239,68,68,0.1)",
+                                                        item.wasCorrect ? "rgba(16,185,129,0.8)" : "rgba(239,68,68,0.8)",
+                                                        item.wasCorrect ? "rgba(16,185,129,0.1)" : "rgba(239,68,68,0.1)"
+                                                    ],
+                                                    boxShadow: [
+                                                        "0 0 0px rgba(0,0,0,0)", 
+                                                        item.wasCorrect ? "0 0 40px rgba(16,185,129,0.4)" : "0 0 40px rgba(239,68,68,0.4)",
+                                                        "0 0 0px rgba(0,0,0,0)"
+                                                    ]
+                                                }}
+                                                transition={{ 
+                                                    delay: getIconAnimationDelay(i),
+                                                    duration: 0.8,
+                                                    times: [0, 0.5, 1],
+                                                    ease: "easeInOut"
+                                                }}
+                                                className={"p-[1.5vmin] rounded-[3vmin] border-[0.4vmin] flex flex-col items-center justify-center gap-[0.5vmin] transition-colors duration-500 " + (item.wasCorrect ? "bg-emerald-50/80" : "bg-red-50/80") + " shadow-md"}
+                                            >
+                                                <span className="text-[5vmin] leading-none select-none">{item.icon}</span>
                                                 {item.wasCorrect ? <Icons.CheckCircle2 className="w-[2.5vmin] h-[2.5vmin] text-emerald-500" /> : <Icons.XCircle className="w-[2.5vmin] h-[2.5vmin] text-red-400" />}
-                                            </div>
+                                            </motion.div>
                                         ))}
                                     </div>
-                                    <div className="h-fit flex items-center justify-center shrink-0 w-full">
+                                    <div className="h-fit flex items-center justify-center shrink-0 w-full mt-[4vmin]">
                                         {showPlayAgain && (
                                             <motion.button 
                                                 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} 
-                                                onClick={() => setGameState('menu')} 
+                                                onClick={() => setGameState("menu")} 
                                                 className="w-full max-w-[40vw] bg-emerald-500 text-white py-[2.5vmin] rounded-full fluid-button font-[900] shadow-2xl flex items-center justify-center gap-[2vmin] active:scale-95 uppercase tracking-wider hover:bg-emerald-600 transition-colors mb-[1vmin]"
                                             >
                                                 <Icons.RefreshCcw size="3.5vmin" /> Play Again
@@ -335,9 +394,8 @@
             );
         }
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
+        const root = ReactDOM.createRoot(document.getElementById("root"));
         root.render(<App />);
     </script>
 </body>
 </html>
-
